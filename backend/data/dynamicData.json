@@ -1,0 +1,135 @@
+{
+  "profile": {
+    "name": "Raad Alzaeem",
+    "title": "Full Stack Developer",
+    "description": "Passionate developer with experience in building web applications.",
+    "image": "https://example.com/profile.jpg",
+    "email": "alzaeemraad9@gmail.com",
+    "bio": "Experienced in React, Node.js, and database management.",
+    "phone": "+91 9318395822",
+    "githubLink": "asfsf",
+    "linkedinLink": "asffa",
+    "instagramLink": "afsa",
+    "twitterLink": "da"
+  },
+  "projects": [
+    {
+      "id": "1",
+      "title": "Project One",
+      "description": "Description of project one.",
+      "image": "https://example.com/project1.jpg",
+      "tags": [
+        "React",
+        "Node.js"
+      ],
+      "demoUrl": "https://projectone.demo",
+      "repoUrl": "https://github.com/johndoe/projectone",
+      "featured": true
+    },
+    {
+      "id": "1745528823795qm752xsl2",
+      "title": "Frontend Developer & UI/UX Designer",
+      "description": "sjhfksfhksjfh",
+      "image": "asf",
+      "tags": [
+        "fafa"
+      ],
+      "featured": false,
+      "repoUrl": "haj"
+    },
+    {
+      "id": "1745530059501kc5phlsoz",
+      "title": "zuuppy",
+      "description": "zuppy almuzabzb",
+      "image": "asf",
+      "tags": [
+        "kjflljlhas"
+      ],
+      "featured": false
+    }
+  ],
+  "experience": [
+    {
+      "id": "1",
+      "title": "Software Engineer",
+      "company": "Tech Company",
+      "location": "New York",
+      "role": "Developer",
+      "type": "Full-time",
+      "startDate": "2020-01-01",
+      "endDate": null,
+      "description": "Worked on various web development projects."
+    },
+    {
+      "id": "17455301400417fpa6c0r1",
+      "title": "muzapzap",
+      "company": "zuppy",
+      "location": "zuppppy",
+      "role": "zuuppy",
+      "startDate": "5411-02-15",
+      "endDate": "2000-01-01",
+      "description": "mdri",
+      "type": "work"
+    },
+    {
+      "id": "edu1",
+      "title": "Bachelor of Science in Computer Science",
+      "company": "delhi",
+      "location": "Example City",
+      "role": "Computer Science",
+      "startDate": "2015-09-01",
+      "endDate": "2019-06-30",
+      "description": "Studied core computer science concepts and software development.",
+      "type": "education"
+    },
+    {
+      "id": "edu2",
+      "title": "Master of Science in Software Engineering",
+      "company": "Example Institute of Technology",
+      "location": "Example City",
+      "role": "Software Engineering",
+      "startDate": "2019-09-01",
+      "endDate": "2021-06-30",
+      "description": "Focused on advanced software engineering principles and project management.",
+      "type": "education"
+    }
+  ],
+  "skills": [
+    {
+      "id": "1",
+      "title": "Web Development",
+      "description": "Building responsive and performant web applications using modern frameworks and best practices."
+    },
+    {
+      "id": "2",
+      "title": "UI/UX Design",
+      "description": "Creating intuitive interfaces with a focus on usability, accessibility, and aesthetics."
+    },
+    {
+      "id": "3",
+      "title": "Visual Design",
+      "description": "Crafting beautiful visual systems with attention to typography, color, and composition."
+    },
+    {
+      "id": "4",
+      "title": "Brand Identity",
+      "description": "Developing cohesive brand identities that communicate the essence of a product or company."
+    }
+  ],
+  "messages": [
+    {
+      "id": "1745575415409kxtiwdfvc",
+      "date": "2025-04-25T10:03:35.409Z",
+      "name": "hgj",
+      "email": "alzaeemraad7@gmail.com",
+      "content": "sfs"
+    },
+    {
+      "id": "1745576316395b0xbco2mm",
+      "date": "2025-04-25T10:18:36.395Z",
+      "name": "hgj",
+      "email": "alzaeemraad7@gmail.com",
+      "content": "hi"
+    }
+  ]
+}
