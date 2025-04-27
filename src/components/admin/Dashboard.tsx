@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import Messages from './Messages';
 import { Briefcase, GraduationCap, Mail, UserCheck } from 'lucide-react';
@@ -7,6 +7,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 const Dashboard: React.FC = () => {
   const { projects, experience, messages } = useData();
   const [activeSection, setActiveSection] = useState<'projects' | 'education' | 'messages' | 'experience' | null>(null);
+  const [isPhone, setIsPhone] = useState(false);
+
+  useEffect(() => {
+    const checkIsPhone = () => {
+      setIsPhone(window.innerWidth < 640);
+    };
+    checkIsPhone();
+    window.addEventListener('resize', checkIsPhone);
+    return () => window.removeEventListener('resize', checkIsPhone);
+  }, []);
 
   const stats = [
     {
@@ -14,33 +24,33 @@ const Dashboard: React.FC = () => {
       label: 'Total Projects',
       count: projects.length,
       icon: Briefcase,
-      onClick: () => setActiveSection('projects'),
+      onClick: () => setActiveSection(activeSection === 'projects' ? null : 'projects'),
     },
     {
       id: 'education',
       label: 'Education',
       count: experience.filter(e => e.type === 'education').length,
       icon: GraduationCap,
-      onClick: () => setActiveSection('education'),
+      onClick: () => setActiveSection(activeSection === 'education' ? null : 'education'),
     },
     {
       id: 'messages',
       label: 'Messages',
       count: messages.length,
       icon: Mail,
-      onClick: () => setActiveSection('messages'),
+      onClick: () => setActiveSection(activeSection === 'messages' ? null : 'messages'),
     },
     {
       id: 'experience',
       label: 'Experience Entries',
       count: experience.filter(e => e.type !== 'education').length,
       icon: UserCheck,
-      onClick: () => setActiveSection('experience'),
+      onClick: () => setActiveSection(activeSection === 'experience' ? null : 'experience'),
     },
   ];
 
-  const renderContent = () => {
-    switch (activeSection) {
+  const renderContent = (section: string) => {
+    switch (section) {
       case 'projects':
         const recentProjects = [...projects].slice(-5).reverse();
         return (
@@ -118,35 +128,55 @@ const Dashboard: React.FC = () => {
       <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Dashboard</h2>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
         {stats.map(({ id, label, count, icon: Icon, onClick }) => (
-          <div
-            key={id}
-            onClick={onClick}
-            className="cursor-pointer p-6 border border-gray-300 rounded-lg dark:border-gray-600 bg-white dark:bg-gray-800 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col items-center space-y-4"
-          >
-            <Icon className="w-12 h-12 text-blue-600 dark:text-blue-400 transition-colors duration-300" />
-            <p className="text-4xl font-extrabold text-gray-900 dark:text-white">{count}</p>
-            <p className="text-lg font-medium text-gray-700 dark:text-gray-300">{label}</p>
-          </div>
+          <React.Fragment key={id}>
+            <div
+              onClick={onClick}
+              className="cursor-pointer p-6 border border-gray-300 rounded-lg dark:border-gray-600 bg-white dark:bg-gray-800 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col items-center space-y-4"
+            >
+              <Icon className="w-12 h-12 text-blue-600 dark:text-blue-400 transition-colors duration-300" />
+              <p className="text-4xl font-extrabold text-gray-900 dark:text-white">{count}</p>
+              <p className="text-lg font-medium text-gray-700 dark:text-gray-300">{label}</p>
+            </div>
+            {isPhone && activeSection === id && (
+              <motion.div
+                key={`${id}-content`}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={{
+                  hidden: { opacity: 0, height: 0 },
+                  visible: { opacity: 1, height: 'auto' },
+                  exit: { opacity: 0, height: 0 },
+                }}
+                transition={{ duration: 0.5 }}
+                className="col-span-1"
+              >
+                {renderContent(id)}
+              </motion.div>
+            )}
+          </React.Fragment>
         ))}
       </div>
-      <AnimatePresence>
-        {activeSection && (
-          <motion.div
-            key={activeSection}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={{
-              hidden: { opacity: 0, height: 0 },
-              visible: { opacity: 1, height: 'auto' },
-              exit: { opacity: 0, height: 0 },
-            }}
-            transition={{ duration: 0.5 }}
-          >
-            {renderContent()}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!isPhone && (
+        <AnimatePresence>
+          {activeSection && (
+            <motion.div
+              key={activeSection}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={{
+                hidden: { opacity: 0, height: 0 },
+                visible: { opacity: 1, height: 'auto' },
+                exit: { opacity: 0, height: 0 },
+              }}
+              transition={{ duration: 0.5 }}
+            >
+              {renderContent(activeSection)}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   );
 };

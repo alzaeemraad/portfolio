@@ -16,6 +16,12 @@
     "aboutMeText": "raad",
     "whoAmIText": "raad"
   },
+  "users":[
+    {
+    "username"  : "Raad",
+    "password":"123"
+  }
+  ],
   "projects": [
     {
       "id": "1",

@@ -77,12 +77,29 @@ app.get('/', (req, res) => {
 // POST endpoint to update JSON data (excluding users)
 app.post('/data', (req, res) => {
   const newData = req.body;
-  fs.writeFile(dataFilePath, JSON.stringify(newData, null, 2), 'utf8', (err) => {
-    if (err) {
-      console.error('Error writing data file:', err);
-      return res.status(500).json({ error: 'Failed to write data file' });
+  fs.readFile(dataFilePath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      console.error('Error reading data file:', readErr);
+      return res.status(500).json({ error: 'Failed to read data file' });
     }
-    res.json({ message: 'Data updated successfully' });
+    let existingData = {};
+    try {
+      existingData = JSON.parse(data);
+    } catch (parseErr) {
+      console.error('Error parsing JSON data:', parseErr);
+      return res.status(500).json({ error: 'Failed to parse JSON data' });
+    }
+    // Preserve the users array from existing data
+    const users = existingData.users || [];
+    // Merge newData with existingData, but keep users intact
+    const mergedData = { ...existingData, ...newData, users };
+    fs.writeFile(dataFilePath, JSON.stringify(mergedData, null, 2), 'utf8', (writeErr) => {
+      if (writeErr) {
+        console.error('Error writing data file:', writeErr);
+        return res.status(500).json({ error: 'Failed to write data file' });
+      }
+      res.json({ message: 'Data updated successfully' });
+    });
   });
 });
 
