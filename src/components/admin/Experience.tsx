@@ -57,7 +57,7 @@ const Experience: React.FC = () => {
         type: 'work',
       });
     }
-  }, [editingId, workExperience]);
+  }, [editingId]);
 
   if (authLoading || dataLoading) {
     return <div>Loading...</div>;
