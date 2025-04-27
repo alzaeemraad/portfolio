@@ -6,6 +6,7 @@ interface Skill {
   icon: ReactNode;
   title: string;
   description: string;
+  percentage?: number; // Added percentage field to represent skill proficiency
 }
 
 interface Profile {
@@ -16,6 +17,9 @@ interface Profile {
   email?: string;
   bio?: string;
   phone?: string;
+  location?: string;  // Added location field
+  aboutMeText?: string;
+  whoAmIText?: string;
   // New fields for icon links control
   aboutIconLink?: string;
   heroGetInTouchLink?: string;
@@ -27,6 +31,7 @@ interface Profile {
   linkedinLink?: string;
   instagramLink?: string;
   twitterLink?: string;
+  resumePdf?: string; // Added resumePdf field
 }
 
 interface Project {
@@ -138,11 +143,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...newData,
         skills: newData.skills.map(({ icon, ...rest }) => rest),
       };
+      console.log('Saving data to backend:', dataToSave); // Debug log
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSave),
       });
+      console.log('Save data response status:', response.status); // Debug log
       if (!response.ok) throw new Error('Failed to save data');
       toast.success('Data saved successfully');
     } catch (error) {
@@ -189,6 +196,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       skills,
       messages,
     });
+    // Refresh data from backend to ensure state consistency
+    await fetchInitialData();
   };
 
   const updateProject = async (id: string, data: Partial<Project>) => {

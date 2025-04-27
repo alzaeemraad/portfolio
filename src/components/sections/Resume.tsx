@@ -39,7 +39,7 @@ const formatYearRange = (startDate: string, endDate?: string | null) => {
 };
 
 const Resume: React.FC = () => {
-  const { experience } = useData();
+  const { experience, profile } = useData();
 
   return (
     <section id="resume" className="py-20 bg-gray-50 dark:bg-gray-900">
@@ -62,7 +62,7 @@ const Resume: React.FC = () => {
 
         <div className="flex justify-center mb-12">
           <motion.a
-            href="/resume.pdf"
+            href={profile?.resumePdf || "/resume.pdf"}
             download
             className="flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 transition-colors text-white font-medium rounded-full shadow-md hover:shadow-lg"
             whileHover={{ scale: 1.05 }}

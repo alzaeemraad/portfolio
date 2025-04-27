@@ -15,8 +15,10 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-heading font-bold mb-4">John Doe</h3>
-            <p className="text-gray-400 mb-4">Frontend Developer & UI/UX Designer based in San Francisco, CA.</p>
+            <h3 className="text-xl font-heading font-bold mb-4">{profile?.name || 'John'}</h3>
+            <p className="text-gray-400 mb-4">
+             {profile?.title|| 'UX Desginer'} {profile?.location || 'San Francisco, CA'}.
+            </p>
             <div className="flex space-x-4">
               <motion.a 
                 href={githubLink} 
@@ -134,9 +136,9 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-heading font-bold mb-4">Contact</h3>
             <address className="not-italic text-gray-400">
-              <p className="mb-2">San Francisco, CA, USA</p>
-              <p className="mb-2">contact@johndoe.com</p>
-              <p>+1 (555) 123-4567</p>
+              <p className="mb-2">{profile?.location || 'San Francisco, CA, USA'}</p>
+              <p className="mb-2">{profile?.email || 'contact@johndoe.com'}</p>
+              <p>{profile?.phone || '+1 (555) 123-4567'}</p>
             </address>
           </div>
         </div>

@@ -65,7 +65,15 @@ const Navbar: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              JD
+              {profile?.image ? (
+                <img
+                  src={profile.image}
+                  alt="Logo"
+                  className="h-8 w-auto object-contain"
+                />
+              ) : (
+                'JD'
+              )}
             </motion.a>
           </div>
 

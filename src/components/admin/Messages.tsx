@@ -39,7 +39,7 @@ const Messages: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="max-w-full sm:max-w-6xl mx-auto px-4 sm:px-6 md:px-8 p-4">
       <h3 className="text-xl font-semibold mb-4">User Messages</h3>
       <div className="space-y-4 max-h-96 overflow-y-auto border border-gray-300 rounded p-4">
         {paginatedMessages.map((msg: Message) => (

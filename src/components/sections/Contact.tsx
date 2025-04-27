@@ -141,7 +141,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Location</h4>
-                    <p className="text-gray-600 dark:text-gray-400">San Francisco, CA, USA</p>
+                    <p className="text-gray-600 dark:text-gray-400">{profile?.location || 'San Francisco, CA, USA'}</p>
                   </div>
                 </div>
                 

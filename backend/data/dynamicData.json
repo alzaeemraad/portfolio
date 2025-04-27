@@ -3,14 +3,18 @@
     "name": "Raad Alzaeem",
     "title": "Full Stack Developer",
     "description": "Passionate developer with experience in building web applications.",
-    "image": "https://example.com/profile.jpg",
+    "image": "data:image/jpeg;base64,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",
     "email": "alzaeemraad9@gmail.com",
     "bio": "Experienced in React, Node.js, and database management.",
     "phone": "+91 9318395822",
     "githubLink": "asfsf",
     "linkedinLink": "asffa",
     "instagramLink": "afsa",
-    "twitterLink": "da"
+    "twitterLink": "da",
+    "resumePdf": "http://localhost:4000/uploads/resume.pdf",
+    "location": "Sanaa",
+    "aboutMeText": "raad",
+    "whoAmIText": "raad"
   },
   "projects": [
     {
@@ -97,23 +101,33 @@
   "skills": [
     {
       "id": "1",
-      "title": "Web Development",
-      "description": "Building responsive and performant web applications using modern frameworks and best practices."
+      "title": "playing football",
+      "description": "messi",
+      "percentage": 100
     },
     {
       "id": "2",
       "title": "UI/UX Design",
-      "description": "Creating intuitive interfaces with a focus on usability, accessibility, and aesthetics."
+      "description": "Creating intuitive interfaces with a focus on usability, accessibility, and aesthetics.",
+      "percentage": 99
     },
     {
       "id": "3",
       "title": "Visual Design",
-      "description": "Crafting beautiful visual systems with attention to typography, color, and composition."
+      "description": "Crafting beautiful visual systems with attention to typography, color, and composition.",
+      "percentage": 75
     },
     {
       "id": "4",
       "title": "Brand Identity",
-      "description": "Developing cohesive brand identities that communicate the essence of a product or company."
+      "description": "Developing cohesive brand identities that communicate the essence of a product or company.",
+      "percentage": 70
+    },
+    {
+      "id": "1745765750167",
+      "title": "mal ",
+      "description": "hjaskfh",
+      "percentage": 28
     }
   ],
   "messages": [

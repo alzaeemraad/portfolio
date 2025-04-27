@@ -114,7 +114,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="max-w-full sm:max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
       <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Dashboard</h2>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
         {stats.map(({ id, label, count, icon: Icon, onClick }) => (

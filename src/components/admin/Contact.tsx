@@ -10,6 +10,7 @@ const Contact: React.FC = () => {
     name: '',
     email: '',
     phone: '',
+    location: '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -22,6 +23,7 @@ const Contact: React.FC = () => {
         name: profile.name || '',
         email: profile.email || '',
         phone: profile.phone || '',
+        location: profile.location || '',
       });
     }
   }, [profile]);
@@ -72,7 +74,7 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-4 bg-white rounded-lg shadow-lg dark:bg-gray-800">
+    <div className="max-w-full sm:max-w-lg mx-auto p-4 bg-white rounded-lg shadow-lg dark:bg-gray-800 px-4 sm:px-6 md:px-8">
       <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">Contact Information</h2>
       <p className="mt-2 text-gray-700 dark:text-gray-300">
         Update your contact details below. We'll keep your information safe.
@@ -120,6 +122,20 @@ const Contact: React.FC = () => {
             onChange={handleChange}
             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
             placeholder="Enter your phone number"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-900 dark:text-white" htmlFor="location">
+            Location
+          </label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+            placeholder="Enter your location"
           />
         </div>
         <button

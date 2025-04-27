@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await signIn(email, password);
+      await signIn(username, password);
       navigate('/admin');
       toast.success('Welcome back!');
     } catch (error) {
@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md px-4 sm:px-6 md:px-8"
       >
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-soft p-8">
           <div className="text-center mb-8">
@@ -51,19 +51,19 @@ const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label 
-                htmlFor="email" 
+                htmlFor="username" 
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                Email Address
+                Username
               </label>
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter your email"
+                placeholder="Enter your username"
               />
             </div>
 
