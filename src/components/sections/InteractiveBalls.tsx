@@ -2,11 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { useTheme } from '../../context/ThemeContext';
 
-class BallWithVelocity extends THREE.Mesh {
+class LogoPlaneWithVelocity extends THREE.Mesh {
   velocity: THREE.Vector3;
   basePosition: THREE.Vector3;
 
-  constructor(geometry: THREE.SphereGeometry, material: THREE.MeshStandardMaterial) {
+  constructor(geometry: THREE.PlaneGeometry, material: THREE.MeshBasicMaterial) {
     super(geometry, material);
     this.velocity = new THREE.Vector3();
     this.basePosition = new THREE.Vector3();
@@ -16,6 +16,42 @@ class BallWithVelocity extends THREE.Mesh {
 const InteractiveBalls: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
+
+  // Programming language symbols to display
+  const symbols = ["JS", "TS", "Py", "Java", "C++", "Go", "Ruby", "PHP", "Swift", "Rust", "Kotlin", "Dart", "R", "Scala", "C#", "HTML", "CSS"];
+
+  // Primary blue colors for themes
+  const primaryBlueDark = '#1E40AF'; // dark mode primary blue
+  const primaryBlueLight = '#60A5FA'; // light mode primary blue
+
+  // Function to create canvas texture for a symbol with given color
+  const createLogoTexture = (symbol: string, color: string): THREE.Texture => {
+    const size = 512; // Increased canvas size for higher resolution texture
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Failed to get canvas context');
+
+    // Clear canvas with transparent background
+    ctx.clearRect(0, 0, size, size);
+
+    // Set text properties
+    ctx.fillStyle = color;
+    // Adjust font size based on symbol length to prevent clipping
+    const maxFontSize = 240;
+    const fontSize = symbol.length > 2 ? maxFontSize - (symbol.length - 2) * 30 : maxFontSize;
+    ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Draw text centered
+    ctx.fillText(symbol, size / 2, size / 2);
+
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  };
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -32,50 +68,48 @@ const InteractiveBalls: React.FC = () => {
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
 
-    const balls: BallWithVelocity[] = [];
-    const ballCount = 20;
+    // Apply blur filter to renderer's canvas in both light and dark modes
+    renderer.domElement.style.filter = 'blur(4px)';
+
+    const logos: LogoPlaneWithVelocity[] = [];
+    const logoCount = symbols.length; // Set logoCount to number of unique symbols
     const boundary = 40;
 
-    // Define colors
-    const blueColor = new THREE.Color('#0ea5e9'); // primary-500 from tailwind config
-    const lightGreyColor = new THREE.Color('hsl(0, 0%, 95%)'); // very light grey
-
     // Function to get color based on theme
-    const getBallColor = () => {
-      return theme === 'dark' ? blueColor : lightGreyColor;
-    };
+    const getColor = () => (theme === 'light' ? primaryBlueLight : primaryBlueDark);
 
-    for (let i = 0; i < ballCount; i++) {
-      const radius = THREE.MathUtils.randFloat(1, 4);
-      const geometry = new THREE.SphereGeometry(radius, 32, 32);
-      const material = new THREE.MeshStandardMaterial({
-        color: getBallColor(),
-        roughness: 0.5,
-        metalness: 0.5,
-      });
-      const ball = new BallWithVelocity(geometry, material);
-      ball.position.set(
+    // Create logo planes with random symbols, positions, velocities, and scales
+    for (let i = 0; i < logoCount; i++) {
+      const symbol = symbols[i]; // Use symbol directly without modulo to avoid repetition
+      const color = getColor();
+      const texture = createLogoTexture(symbol, color);
+      const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+      const geometry = new THREE.PlaneGeometry(8, 8);
+      const logo = new LogoPlaneWithVelocity(geometry, material);
+
+      logo.position.set(
         THREE.MathUtils.randFloatSpread(boundary * 2),
         THREE.MathUtils.randFloatSpread(boundary * 2),
         THREE.MathUtils.randFloatSpread(boundary * 2)
       );
-      ball.basePosition = ball.position.clone();
-      ball.velocity = new THREE.Vector3(
-        THREE.MathUtils.randFloat(-0.02, 0.02),
-        THREE.MathUtils.randFloat(-0.02, 0.02),
-        THREE.MathUtils.randFloat(-0.02, 0.02)
+      logo.basePosition = logo.position.clone();
+      logo.velocity = new THREE.Vector3(
+        THREE.MathUtils.randFloat(-0.01, 0.01),
+        THREE.MathUtils.randFloat(-0.01, 0.01),
+        THREE.MathUtils.randFloat(-0.01, 0.01)
       );
-      scene.add(ball);
-      balls.push(ball);
+
+      // Random scale between 0.5 and 1.5
+      const scale = THREE.MathUtils.randFloat(0.5, 1.5);
+      logo.scale.set(scale, scale, 1);
+
+      scene.add(logo);
+      logos.push(logo);
     }
 
-    // Lights
+    // Lights (not needed for MeshBasicMaterial, but keep ambient for consistency)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(0, 1, 1);
-    scene.add(directionalLight);
 
     // Mouse interaction
     const mouse = new THREE.Vector2();
@@ -90,78 +124,103 @@ const InteractiveBalls: React.FC = () => {
 
     window.addEventListener('mousemove', onMouseMove);
 
-    // Update ball colors on theme change
-    const updateBallColors = () => {
-      const newColor = getBallColor();
-      balls.forEach((ball) => {
-        (ball.material as THREE.MeshStandardMaterial).color = newColor;
-        (ball.material as THREE.MeshStandardMaterial).needsUpdate = true;
+    // Update logo colors on theme change by regenerating textures
+    const updateLogoColors = () => {
+      const color = getColor();
+      logos.forEach((logo, index) => {
+        const symbol = symbols[index]; // Use symbol directly without modulo to avoid repetition
+        // Dispose old texture
+        if (!Array.isArray(logo.material) && 'map' in logo.material && logo.material.map) {
+          (logo.material.map as THREE.Texture).dispose();
+        }
+        const newTexture = createLogoTexture(symbol, color);
+        if (!Array.isArray(logo.material) && 'map' in logo.material) {
+          logo.material.map = newTexture;
+          logo.material.needsUpdate = true;
+        }
       });
     };
 
-    updateBallColors();
+    updateLogoColors();
 
     // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Update raycaster
       raycaster.setFromCamera(mouse, camera);
 
-      balls.forEach((ball) => {
-        // Move balls by velocity
-        ball.position.add(ball.velocity);
+      logos.forEach((logo) => {
+        // Move logos by velocity
+        logo.position.add(logo.velocity);
 
         // Bounce off boundaries
         (['x', 'y', 'z'] as (keyof THREE.Vector3)[]).forEach((axis) => {
-          if (typeof ball.position[axis] === 'number') {
-            if (ball.position[axis] > boundary) {
-              ball.position[axis] = boundary;
-              ball.velocity[axis] = -ball.velocity[axis];
-            } else if (ball.position[axis] < -boundary) {
-              ball.position[axis] = -boundary;
-              ball.velocity[axis] = -ball.velocity[axis];
+          if (typeof logo.position[axis] === 'number') {
+            if (logo.position[axis] > boundary) {
+              logo.position[axis] = boundary;
+              // Mutate velocity component instead of reassigning
+              const idx = axis === 'x' ? 0 : axis === 'y' ? 1 : 2;
+              logo.velocity.setComponent(idx, -logo.velocity.getComponent(idx));
+            } else if (logo.position[axis] < -boundary) {
+              logo.position[axis] = -boundary;
+              // Mutate velocity component instead of reassigning
+              const idx = axis === 'x' ? 0 : axis === 'y' ? 1 : 2;
+              logo.velocity.setComponent(idx, -logo.velocity.getComponent(idx));
             }
           }
         });
 
         // Check intersection with mouse raycaster
-        const intersects = raycaster.intersectObject(ball);
+        const intersects = raycaster.intersectObject(logo);
         if (intersects.length > 0) {
           // On mouse hover, change velocity randomly to simulate interaction
-          ball.velocity.add(new THREE.Vector3(
-            THREE.MathUtils.randFloat(-0.05, 0.05),
-            THREE.MathUtils.randFloat(-0.05, 0.05),
-            THREE.MathUtils.randFloat(-0.05, 0.05)
-          ));
+          // Reduce velocity change magnitude to slow down on hover
+          const deltaV = new THREE.Vector3(
+            THREE.MathUtils.randFloat(-0.005, 0.005),
+            THREE.MathUtils.randFloat(-0.005, 0.005),
+            THREE.MathUtils.randFloat(-0.005, 0.005)
+          );
+          logo.velocity.add(deltaV);
 
           // Limit velocity magnitude
-          ball.velocity.clampLength(0, 0.1);
+          logo.velocity.clampLength(0, 0.03);
 
           // Scale up on hover
-          ball.scale.set(1.5, 1.5, 1.5);
+          // Zoom until 3 times original size, then stop scaling
+          if (logo.scale.x < (logo.userData.originalScale as number) * 3) {
+            logo.scale.multiplyScalar(1.02);
+          }
         } else {
-          // Reset scale
-          ball.scale.set(1, 1, 1);
+          // Reset scale to original random scale
+          if (logo.userData.originalScale) {
+            const s = logo.userData.originalScale as number;
+            logo.scale.set(s, s, 1);
+          }
         }
       });
 
       renderer.render(scene, camera);
     };
 
+    // Store original scales in userData for reset on hover out
+    logos.forEach((logo) => {
+      logo.userData.originalScale = logo.scale.x;
+    });
+
     animate();
 
     // Cleanup on unmount
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
-      balls.forEach((ball) => {
-        scene.remove(ball);
-        ball.geometry.dispose();
-        if (Array.isArray(ball.material)) {
-          ball.material.forEach((m) => m.dispose());
-        } else {
-          ball.material.dispose();
+      logos.forEach((logo) => {
+        scene.remove(logo);
+        if (!Array.isArray(logo.material) && 'map' in logo.material && logo.material.map) {
+          (logo.material.map as THREE.Texture).dispose();
         }
+        if (!Array.isArray(logo.material)) {
+          logo.material.dispose();
+        }
+        logo.geometry.dispose();
       });
       renderer.dispose();
       if (mountRef.current) {
@@ -170,7 +229,7 @@ const InteractiveBalls: React.FC = () => {
     };
   }, [theme]);
 
-  return <div ref={mountRef} className="absolute inset-0 z-0" style={{ width: '100%', height: '100%' }} />;
+  return <div ref={mountRef} className="absolute inset-0 w-full h-full" style={{ width: '100%', height: '100%' }} />;
 };
 
 export default InteractiveBalls;

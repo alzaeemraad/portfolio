@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { useTheme } from '../../context/ThemeContext';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const AdminLayout: React.FC = () => {
   const { signOut } = useAuth();
@@ -21,19 +23,21 @@ const AdminLayout: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile } = useData();
+  const { colors } = useTheme();
 
-  const menuItems = useMemo(
-    () => [
-      { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-      { icon: User, label: 'Profile', path: '/admin/profile' },
-      { icon: Briefcase, label: 'Projects', path: '/admin/projects' },
-      { icon: GraduationCap, label: 'Experience', path: '/admin/experience' },
-      { icon: GraduationCap, label: 'Education', path: '/admin/education' },
-      { icon: Mail, label: 'Contact', path: '/admin/contact' },
-      { icon: Settings, label: 'Settings', path: '/admin/settings' },
-    ],
-    []
-  );
+    const menuItems = useMemo(
+      () => [
+        { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+        { icon: User, label: 'Profile', path: '/admin/profile' },
+        { icon: GraduationCap, label: 'Skills', path: '/admin/skills' },
+        { icon: Briefcase, label: 'Projects', path: '/admin/projects' },
+        { icon: GraduationCap, label: 'Experience', path: '/admin/experience' },
+        { icon: GraduationCap, label: 'Education', path: '/admin/education' },
+        { icon: Mail, label: 'Contact', path: '/admin/contact' },
+        { icon: Settings, label: 'Settings', path: '/admin/settings' },
+      ],
+      []
+    );
 
   const handleSignOut = async () => {
     try {
@@ -51,9 +55,9 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col md:flex-row">
+    <div className={`${colors.adminBackground} ${colors.text} min-h-screen flex flex-col md:flex-row`}>
       {/* Mobile header */}
-      <header className="md:hidden flex items-center justify-between bg-white dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700">
+      <header className={`md:hidden flex items-center justify-between ${colors.adminBackground} ${colors.text} p-4 border-b border-gray-200 dark:border-gray-700 relative`}>
         {profile?.image ? (
           <img
             src={profile.image}
@@ -61,28 +65,31 @@ const AdminLayout: React.FC = () => {
             className="h-8 w-auto object-contain"
           />
         ) : (
-          <h1 className="text-xl font-heading font-bold text-gray-900 dark:text-white">
+          <h1 className={`text-xl font-heading font-bold ${colors.text}`}>
             Portfolio Admin
           </h1>
         )}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-label="Toggle menu"
-          className="text-gray-900 dark:text-white focus:outline-none"
-        >
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Toggle menu"
+            className={`${colors.text} focus:outline-none`}
+          >
+            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </header>
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 ${colors.adminBackground} ${colors.text} border-r border-gray-200 dark:border-gray-700 transform ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-300 ease-in-out md:relative md:translate-x-0`}
         aria-label="Sidebar navigation"
       >
         <div className="h-full flex flex-col">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className={`p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between ${colors.adminBackground} ${colors.text}`}>
             {profile?.image ? (
               <img
                 src={profile.image}
@@ -90,7 +97,7 @@ const AdminLayout: React.FC = () => {
                 className="h-10 w-auto object-contain"
               />
             ) : (
-              <h1 className="text-xl font-heading font-bold text-gray-900 dark:text-white">
+              <h1 className={`text-xl font-heading font-bold ${colors.text}`}>
                 Portfolio Admin
               </h1>
             )}
@@ -114,7 +121,7 @@ const AdminLayout: React.FC = () => {
               >
                 <Link
                   to={item.path}
-                  className="flex items-center w-full px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className={`flex items-center w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${colors.text}`}
                   aria-label={item.label}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -125,7 +132,7 @@ const AdminLayout: React.FC = () => {
             ))}
           </nav>
 
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className={`p-4 border-t border-gray-200 dark:border-gray-700`}>
             <motion.button
               onClick={handleSignOut}
               className="flex items-center w-full px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
@@ -145,6 +152,11 @@ const AdminLayout: React.FC = () => {
         </div>
       </aside>
 
+      {/* Floating Theme Toggle Button for desktop */}
+      <div className="hidden md:block fixed bottom-6 right-6 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Main Content */}
       <main className="flex-1 overflow-auto" tabIndex={-1}>
         <div className="container max-w-full sm:max-w-5xl md:max-w-6xl lg:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8">
@@ -154,5 +166,4 @@ const AdminLayout: React.FC = () => {
     </div>
   );
 };
-
 export default AdminLayout;

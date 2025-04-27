@@ -20,6 +20,7 @@ const Profile: React.FC = () => {
     instagramLink: '',
     twitterLink: '',
     resumePdf: '', // Added resumePdf field
+    profileimage: '', // Added profile image field
   });
 
   const [skillsData, setSkillsData] = useState(skills);
@@ -43,6 +44,7 @@ const Profile: React.FC = () => {
         instagramLink: profile.instagramLink || '',
         twitterLink: profile.twitterLink || '',
         resumePdf: profile.resumePdf || '',
+        profileimage: profile.profileimage || '',
       });
     }
   }, [profile]);
@@ -69,30 +71,6 @@ const Profile: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSkillChange = (index: number, field: string, value: string | number) => {
-    const updatedSkills = [...skillsData];
-    // @ts-ignore
-    updatedSkills[index][field] = value;
-    setSkillsData(updatedSkills);
-  };
-
-  const addSkill = () => {
-    const newSkill = {
-      id: Date.now().toString(),
-      title: '',
-      description: '',
-      percentage: 0,
-      icon: <></>,
-    };
-    setSkillsData(prev => [...prev, newSkill]);
-  };
-
-  const deleteSkill = (index: number) => {
-    const updatedSkills = [...skillsData];
-    updatedSkills.splice(index, 1);
-    setSkillsData(updatedSkills);
-  };
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -112,7 +90,6 @@ const Profile: React.FC = () => {
       });
       if (!response.ok) throw new Error('Upload failed');
       const data = await response.json();
-      // Prepend backend base URL to the returned URL
       const fullUrl = data.url.startsWith('http') ? data.url : backendBaseUrl + data.url;
       setFormData(prev => ({ ...prev, resumePdf: fullUrl }));
       setSuccess('Resume uploaded successfully');
@@ -123,28 +100,55 @@ const Profile: React.FC = () => {
     }
   };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!validate()) return;
+  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file');
+      return;
+    }
+    setError(null);
+    setUploading(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('profileImage', file);
+      const backendBaseUrl = 'http://localhost:4000';
+      const response = await fetch(`${backendBaseUrl}/upload-profile-image`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      const fullUrl = data.url.startsWith('http') ? data.url : backendBaseUrl + data.url;
+      setFormData(prev => ({ ...prev, profileimage: fullUrl }));
+      setSuccess('Profile image uploaded successfully');
+    } catch (err) {
+      setError('Failed to upload profile image');
+    } finally {
+      setUploading(false);
+    }
+  };
 
-      setSaving(true);
-      setError(null);
-      setSuccess(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
 
-      try {
-        console.log('Submitting formData:', formData); // Debug log for formData
-        // Include aboutMeText and whoAmIText in profile update
-        const { aboutMeText, whoAmIText, ...restProfileData } = formData;
-        const profileData = { ...restProfileData, aboutMeText, whoAmIText };
-        await updateProfile(profileData);
-        await updateSkills(skillsData);
-        setSuccess('Profile and skills updated successfully');
-      } catch (_) {
-        setError('Failed to update profile and skills');
-      } finally {
-        setSaving(false);
-      }
-    };
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const { aboutMeText, whoAmIText, ...restProfileData } = formData;
+      const profileData = { ...restProfileData, aboutMeText, whoAmIText };
+      await updateProfile(profileData);
+      await updateSkills(skillsData);
+      setSuccess('Profile and skills updated successfully');
+    } catch (_) {
+      setError('Failed to update profile and skills');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (authLoading || dataLoading) {
     return <div>Loading...</div>;
@@ -233,61 +237,6 @@ const Profile: React.FC = () => {
           />
         </div>
 
-        <div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Skills</h3>
-          {skillsData.map((skill, index) => (
-            <div key={skill.id} className="mb-4 border border-gray-300 rounded p-4 dark:border-gray-600">
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">Skill Name</label>
-                <input
-                  type="text"
-                  value={skill.title}
-                  onChange={(e) => handleSkillChange(index, 'title', e.target.value)}
-                  className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                  placeholder="Enter skill name"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">Skill Description</label>
-                <textarea
-                  value={skill.description}
-                  onChange={(e) => handleSkillChange(index, 'description', e.target.value)}
-                  rows={3}
-                  className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                  placeholder="Enter skill description"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">Skill Percentage</label>
-                <input
-                  type="number"
-                  value={skill.percentage}
-                  onChange={(e) => handleSkillChange(index, 'percentage', Number(e.target.value))}
-                  min={0}
-                  max={100}
-                  className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                  placeholder="Enter skill percentage"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => deleteSkill(index)}
-                className="mt-2 bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Delete Skill
-              </button>
-            </div>
-          ))}
-
-          <button
-            type="button"
-            onClick={addSkill}
-            className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            Add Skill
-          </button>
-        </div>
-
         <SocialMediaLinkInput
           label="GitHub URL"
           name="githubLink"
@@ -316,6 +265,23 @@ const Profile: React.FC = () => {
           onChange={handleChange}
           Icon={Twitter}
         />
+        <div>
+          <label htmlFor="profileImage" className="block text-sm font-medium text-gray-900 dark:text-white">Upload Profile Image</label>
+          <input
+            type="file"
+            id="profileImage"
+            name="profileImage"
+            accept="image/*"
+            onChange={handleProfileImageChange}
+            disabled={uploading}
+            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+          />
+          {formData.profileimage && (
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Current profile image: <a href={formData.profileimage} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">{formData.profileimage}</a>
+            </p>
+          )}
+        </div>
         <div>
           <label htmlFor="resumePdf" className="block text-sm font-medium text-gray-900 dark:text-white">Upload Resume PDF</label>
           <input
@@ -346,4 +312,3 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
-

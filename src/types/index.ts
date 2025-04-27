@@ -25,6 +25,7 @@ export interface Profile {
     twitter: string;
     instagram: string;
   };
+  showInteractiveBalls?: boolean; // Added optional property for toggle
 }
 
 export interface Experience {

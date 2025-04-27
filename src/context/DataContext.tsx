@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import toast from 'react-hot-toast';
 
-interface Skill {
+export interface Skill {
   id: string;
-  icon: ReactNode;
+  icon: string | null; // Changed back to string or null to store URL/base64
   title: string;
   description: string;
   percentage?: number; // Added percentage field to represent skill proficiency
@@ -32,6 +32,10 @@ interface Profile {
   instagramLink?: string;
   twitterLink?: string;
   resumePdf?: string; // Added resumePdf field
+
+  // New footer control fields
+  footerCopyrightText?: string;
+  footerDesignCreditText?: string;
 }
 
 interface Project {
@@ -116,10 +120,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProjects(data.projects || []);
       setExperience(data.experience || []);
       setMessages(data.messages || []);
-      // Add default icons to skills if missing
+      // Keep icon as string or null in skills state
       const skillsWithIcons = (data.skills || []).map((skill: any) => ({
-        icon: defaultSkillIcons[skill.id] || <></>,
         ...skill,
+        icon: skill.icon || null,
       }));
       setSkills(skillsWithIcons);
     } catch (error) {
@@ -138,10 +142,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     messages: Message[];
   }) => {
     try {
-      // Exclude 'icon' from skills before saving to avoid circular JSON error
+      // Save icon string URL/base64 as is before saving
       const dataToSave = {
         ...newData,
-        skills: newData.skills.map(({ icon, ...rest }) => rest),
+        skills: newData.skills.map(skill => ({
+          ...skill,
+          icon: skill.icon || null,
+        })),
       };
       console.log('Saving data to backend:', dataToSave); // Debug log
       const response = await fetch(backendUrl, {
@@ -279,10 +286,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateSkills = async (newSkills: Skill[]) => {
-    // Add default icons to new skills if missing
+    // Keep icon as string or null in skills state
     const skillsWithIcons = newSkills.map((skill) => ({
       ...skill,
-      icon: skill.icon || defaultSkillIcons[skill.id] || <></>,
+      icon: skill.icon || null,
     }));
     setSkills(skillsWithIcons);
     await saveData({

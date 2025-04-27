@@ -1,15 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Code, Layout, Palette, PenTool } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import SkillCard from './SkillCard';
-
-const iconMap = {
-  'Web Development': <Code size={24} />,
-  'UI/UX Design': <Layout size={24} />,
-  'Visual Design': <Palette size={24} />,
-  'Brand Identity': <PenTool size={24} />,
-};
 
 const About: React.FC = () => {
   const { skills, profile } = useData();
@@ -90,7 +82,7 @@ const About: React.FC = () => {
           {skills.map((skill, index) => (
             <SkillCard
               key={skill.id}
-              icon={iconMap[skill.title as keyof typeof iconMap] || <></>}
+              icon={skill.icon ? <img src={skill.icon} alt={skill.title + ' icon'} className="h-6 w-6 object-contain" /> : <></>}
               title={skill.title}
               description={skill.description}
               delay={0.1 * (index + 1)}

@@ -25,6 +25,7 @@ import Experience from './components/admin/Experience';
 import Education from './components/admin/Education';
 import ContactAdmin from './components/admin/Contact';
 import Settings from './components/admin/Settings';
+import Skills from './components/admin/Skills';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -40,6 +41,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
+import { useTheme } from './context/ThemeContext';
+
 const Portfolio: React.FC = () => {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -48,12 +51,14 @@ const Portfolio: React.FC = () => {
     restDelta: 0.001
   });
 
+  const { colors } = useTheme();
+
   useEffect(() => {
     document.title = 'John Doe | Portfolio';  // Change the title dynamically when the component is mounted
   }, []);
 
   return (
-    <div className="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div className={`font-sans antialiased ${colors.background} ${colors.text}`}>
       <motion.div 
         className="fixed top-0 left-0 right-0 h-1 bg-primary-600 z-50 origin-left"
         style={{ scaleX }}  // Scroll progress bar animation
@@ -98,6 +103,7 @@ function App() {
                 <Route path="education" element={<Education />} />
                 <Route path="contact" element={<ContactAdmin />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="skills" element={<Skills />} />
               </Route>
             </Routes>
             <Toaster position="top-right" />  {/* Toast notifications */}

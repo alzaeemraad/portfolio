@@ -5,191 +5,162 @@ import cors from 'cors';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
 
+// Resolve __filename & __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 4000;
 
+// Enable CORS and body-parsing
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// Setup multer for file uploads
-const uploadFolder = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadFolder)) {
-  fs.mkdirSync(uploadFolder);
+// Ensure data directory & file exist
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+const dataFilePath = path.join(dataDir, 'dynamicData.json');
+if (!fs.existsSync(dataFilePath)) {
+  fs.writeFileSync(dataFilePath, JSON.stringify({ users: [], settings: {} }, null, 2));
 }
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadFolder);
-  },
-  filename: (req, file, cb) => {
-    // Save file as resume.pdf (overwrite existing)
-    cb(null, 'resume.pdf');
-  },
-});
-const upload = multer({ storage });
+// We’ll store users in the same JSON
+const usersFilePath = dataFilePath;
 
-const dataFilePath = path.join(__dirname, 'data', 'dynamicData.json');
-const usersFilePath = null; // users.json removed, users stored in dynamicData.json
-
-// Serve static files from uploads folder
+// Ensure uploads folder exists and serve it
+const uploadFolder = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadFolder)) fs.mkdirSync(uploadFolder, { recursive: true });
 app.use('/uploads', express.static(uploadFolder));
 
-// GET endpoint to read JSON data (excluding users)
-app.get('/data', (req, res) => {
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading data file:', err);
-      return res.status(500).json({ error: 'Failed to read data file' });
-    }
-    try {
-      const jsonData = JSON.parse(data);
-      res.json(jsonData);
-    } catch (parseErr) {
-      console.error('Error parsing JSON data:', parseErr);
-      res.status(500).json({ error: 'Failed to parse JSON data' });
-    }
+// Multer storage setups
+const resumeStorage = multer.diskStorage({
+  destination: uploadFolder,
+  filename: (_req, _file, cb) => cb(null, 'resume.pdf'),
+});
+const profileImageStorage = multer.diskStorage({
+  destination: uploadFolder,
+  filename: (_req, file, cb) => {
+    const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `profile-image-${suffix}${path.extname(file.originalname)}`);
+  },
+});
+const projectImageStorage = multer.diskStorage({
+  destination: uploadFolder,
+  filename: (_req, file, cb) => {
+    const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `project-image-${suffix}${path.extname(file.originalname)}`);
+  },
+});
+const uploadResume = multer({ storage: resumeStorage });
+const uploadProfileImage = multer({ storage: profileImageStorage });
+const uploadProjectImage = multer({ storage: projectImageStorage });
+
+// Health-check
+app.get('/', (_req, res) => {
+  res.send('Backend server is running. Use /data, /users, or upload endpoints.');
+});
+
+// Data endpoints
+app.get('/data', (_req, res) => {
+  fs.readFile(dataFilePath, 'utf8', (e, raw) => {
+    if (e) return res.status(500).json({ error: 'Failed to read data file' });
+    try { res.json(JSON.parse(raw)); }
+    catch { res.status(500).json({ error: 'Malformed JSON' }); }
   });
 });
-
-app.get('/users', (req, res) => {
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading data file:', err);
-      return res.status(500).json({ error: 'Failed to read data file' });
-    }
-    try {
-      const jsonData = JSON.parse(data);
-      const users = jsonData.users || [];
-      res.json(users);
-    } catch (parseErr) {
-      console.error('Error parsing JSON data:', parseErr);
-      res.status(500).json({ error: 'Failed to parse JSON data' });
-    }
-  });
-});
-
-app.get('/', (req, res) => {
-  res.send('Backend server is running. Use /data endpoint to access data.');
-});
-
-// POST endpoint to update JSON data (excluding users)
 app.post('/data', (req, res) => {
-  const newData = req.body;
-  fs.readFile(dataFilePath, 'utf8', (readErr, data) => {
-    if (readErr) {
-      console.error('Error reading data file:', readErr);
-      return res.status(500).json({ error: 'Failed to read data file' });
-    }
-    let existingData = {};
-    try {
-      existingData = JSON.parse(data);
-    } catch (parseErr) {
-      console.error('Error parsing JSON data:', parseErr);
-      return res.status(500).json({ error: 'Failed to parse JSON data' });
-    }
-    // Preserve the users array from existing data
-    const users = existingData.users || [];
-    // Merge newData with existingData, but keep users intact
-    const mergedData = { ...existingData, ...newData, users };
-    fs.writeFile(dataFilePath, JSON.stringify(mergedData, null, 2), 'utf8', (writeErr) => {
-      if (writeErr) {
-        console.error('Error writing data file:', writeErr);
-        return res.status(500).json({ error: 'Failed to write data file' });
-      }
+  fs.readFile(dataFilePath, 'utf8', (e, raw) => {
+    if (e) return res.status(500).json({ error: 'Read failure' });
+    let base = {};
+    try { base = JSON.parse(raw); } catch {}
+    // Preserve users array from base
+    const users = base.users || [];
+    // Merge new data, but replace projects array entirely if provided
+    const merged = {
+      ...base,
+      ...req.body,
+      users,
+      projects: req.body.projects !== undefined ? req.body.projects : base.projects,
+    };
+    fs.writeFile(dataFilePath, JSON.stringify(merged, null, 2), 'utf8', w => {
+      if (w) return res.status(500).json({ error: 'Write failure' });
       res.json({ message: 'Data updated successfully' });
     });
   });
 });
 
-// POST endpoint to update users data
-app.post('/users', (req, res) => {
-  const newUsers = req.body;
-  fs.writeFile(usersFilePath, JSON.stringify(newUsers, null, 2), 'utf8', (err) => {
-    if (err) {
-      console.error('Error writing users file:', err);
-      return res.status(500).json({ error: 'Failed to write users file' });
+// Users endpoints
+app.get('/users', (_req, res) => {
+  fs.readFile(usersFilePath, 'utf8', (e, raw) => {
+    if (e) return res.status(500).json({ error: 'Read users failure' });
+    try {
+      const all = JSON.parse(raw);
+      res.json(all.users || []);
+    } catch {
+      res.status(500).json({ error: 'Malformed JSON' });
     }
-    res.json({ message: 'Users updated successfully' });
+  });
+});
+app.post('/users', (req, res) => {
+  fs.readFile(usersFilePath, 'utf8', (e, raw) => {
+    if (e) return res.status(500).json({ error: 'Read users failure' });
+    let data = {};
+    try { data = JSON.parse(raw); } catch {}
+    data.users = req.body;
+    fs.writeFile(usersFilePath, JSON.stringify(data, null, 2), 'utf8', w => {
+      if (w) return res.status(500).json({ error: 'Write users failure' });
+      res.json({ message: 'Users updated successfully' });
+    });
   });
 });
 
-// POST endpoint for resume PDF upload
-app.post('/upload-resume', upload.single('resume'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  // Return the URL to access the uploaded resume PDF
-  const resumeUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: resumeUrl });
-});
-
+// Auth
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading data file:', err);
-      return res.status(500).json({ error: 'Failed to read data file' });
-    }
-    try {
-      const jsonData = JSON.parse(data);
-      const users = jsonData.users || [];
-      const normalizedUsername = username.trim().toLowerCase();
-      const normalizedPassword = password.trim();
-      const user = users.find(
-        (u) => u.username.trim().toLowerCase() === normalizedUsername && u.password.trim() === normalizedPassword
-      );
-      if (user) {
-        res.json({ message: 'Login successful', user: { username: user.username } });
-      } else {
-        res.status(401).json({ error: 'Invalid username or password' });
-      }
-    } catch (parseErr) {
-      console.error('Error parsing JSON data:', parseErr);
-      res.status(500).json({ error: 'Failed to parse JSON data' });
-    }
+  fs.readFile(usersFilePath, 'utf8', (e, raw) => {
+    if (e) return res.status(500).json({ error: 'Read failure' });
+    const { users = [] } = JSON.parse(raw);
+    const user = users.find(u =>
+      u.username.toLowerCase() === username.trim().toLowerCase() &&
+      u.password === password.trim()
+    );
+    if (user) return res.json({ message: 'Login successful', user: { username: user.username } });
+    res.status(401).json({ error: 'Invalid credentials' });
   });
 });
-
 app.post('/update-credentials', (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
-  }
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
-    let jsonData = {};
-    if (err) {
-      console.error('Error reading data file:', err);
-      return res.status(500).json({ error: 'Failed to read data file' });
-    } else {
-      try {
-        jsonData = JSON.parse(data);
-      } catch (parseErr) {
-        console.error('Error parsing JSON data:', parseErr);
-        return res.status(500).json({ error: 'Failed to parse JSON data' });
-      }
-    }
-    const users = jsonData.users || [];
-    const normalizedUsername = username.trim().toLowerCase();
-    const userIndex = users.findIndex(u => u.username.trim().toLowerCase() === normalizedUsername);
-    if (userIndex !== -1) {
-      // Replace the entire user object to avoid partial updates
-      users[userIndex] = { username: normalizedUsername, password };
-    } else {
-      users.push({ username: normalizedUsername, password });
-    }
-    jsonData.users = users;
-    fs.writeFile(dataFilePath, JSON.stringify(jsonData, null, 2), 'utf8', (writeErr) => {
-      if (writeErr) {
-        console.error('Error writing data file:', writeErr);
-        return res.status(500).json({ error: 'Failed to write data file' });
-      }
+  if (!username || !password)
+    return res.status(400).json({ error: 'Username and password required' });
+  fs.readFile(usersFilePath, 'utf8', (e, raw) => {
+    let data = {};
+    try { data = JSON.parse(raw); } catch {}
+    data.users = data.users || [];
+    const idx = data.users.findIndex(u => u.username === username.trim());
+    if (idx > -1) data.users[idx] = { username: username.trim(), password };
+    else data.users.push({ username: username.trim(), password });
+    fs.writeFile(usersFilePath, JSON.stringify(data, null, 2), 'utf8', w => {
+      if (w) return res.status(500).json({ error: 'Write failure' });
       res.json({ message: 'Credentials updated successfully' });
     });
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
+// File‐upload endpoints
+app.post('/upload-resume', uploadResume.single('resume'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  res.json({ url: `/uploads/${req.file.filename}` });
 });
+app.post('/upload-profile-image', uploadProfileImage.single('profileImage'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  res.json({ url: `/uploads/${req.file.filename}` });
+});
+app.post('/upload-project-image', uploadProjectImage.single('projectImage'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  res.json({ url: `/uploads/${req.file.filename}` });
+});
+
+// Launch!
+app.listen(PORT, '0.0.0.0', () =>
+  console.log(`Server listening on http://localhost:${PORT}`)
+);

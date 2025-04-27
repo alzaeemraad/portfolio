@@ -4,6 +4,7 @@ import { Menu, X, Github, Linkedin, Twitter, Lock } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
 import { Link, useLocation } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -19,6 +20,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
   const { profile } = useData();
+  const { colors } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,7 +51,7 @@ const Navbar: React.FC = () => {
     <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md'
+          ? `${colors.background}/90 dark:${colors.background}/90 backdrop-blur-md shadow-md`
           : 'bg-transparent'
       }`}
       initial={{ opacity: 0, y: -20 }}
@@ -61,7 +63,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <motion.a
               href={isAdminPage ? "/admin" : "#home"}
-              className="text-2xl font-heading font-bold text-gray-900 dark:text-white"
+              className={`text-2xl font-heading font-bold ${colors.text} dark:${colors.text}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -89,7 +91,7 @@ const Navbar: React.FC = () => {
                       e.preventDefault();
                       handleNavClick(item.href);
                     }}
-                    className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400 transition-colors"
+                    className={`px-3 py-2 text-sm font-medium ${colors.text} hover:${colors.accent} dark:${colors.text} dark:hover:${colors.accent} transition-colors`}
                   >
                     {item.name}
                   </a>
@@ -106,7 +108,7 @@ const Navbar: React.FC = () => {
                       href={githubLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+                      className={`text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors`}
                     >
                       <Github size={20} />
                     </a>
@@ -114,7 +116,7 @@ const Navbar: React.FC = () => {
                       href={linkedinLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+                      className={`text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors`}
                     >
                       <Linkedin size={20} />
                     </a>
@@ -122,14 +124,14 @@ const Navbar: React.FC = () => {
                       href={twitterLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+                      className={`text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors`}
                     >
                       <Twitter size={20} />
                     </a>
                   </div>
                   <Link
                     to="/admin/login"
-                    className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400 transition-colors"
+                    className={`flex items-center px-3 py-2 text-sm font-medium ${colors.text} hover:${colors.accent} dark:${colors.text} dark:hover:${colors.accent} transition-colors`}
                   >
                     <Lock size={16} className="mr-1" />
                     Admin
@@ -144,7 +146,7 @@ const Navbar: React.FC = () => {
             <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="ml-4 p-2 rounded-md text-gray-700 dark:text-gray-300"
+              className={`ml-4 p-2 rounded-md ${colors.text} dark:${colors.text}`}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -155,7 +157,7 @@ const Navbar: React.FC = () => {
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <motion.div
-          className="md:hidden bg-white dark:bg-gray-900 shadow-lg"
+          className={`md:hidden ${colors.background} dark:${colors.background} shadow-lg`}
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
@@ -170,7 +172,7 @@ const Navbar: React.FC = () => {
                   e.preventDefault();
                   handleNavClick(item.href);
                 }}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                className={`block px-3 py-2 rounded-md text-base font-medium ${colors.text} hover:${colors.accent} dark:${colors.text} dark:hover:${colors.accent} transition-colors`}
               >
                 {item.name}
               </a>
@@ -178,7 +180,7 @@ const Navbar: React.FC = () => {
             {!isAdminPage && (
               <Link
                 to="/admin/login"
-                className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${colors.text} hover:${colors.accent} dark:${colors.text} dark:hover:${colors.accent} transition-colors`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Lock size={16} className="mr-2" />
@@ -219,5 +221,4 @@ const Navbar: React.FC = () => {
     </motion.nav>
   );
 };
-
 export default Navbar;

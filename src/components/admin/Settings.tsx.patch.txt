@@ -1,0 +1,47 @@
+Add the following state variables near the top with other useState declarations:
+
+  // New state for "is" functionality
+  const [showIsText, setShowIsText] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [saveError, setSaveError] = useState('');
+
+Add the following new handler function inside the Settings component:
+
+  // New save handler for "is" functionality
+  const handleSaveIs = () => {
+    setSaveMessage('');
+    setSaveError('');
+    try {
+      // Placeholder save logic, e.g., call updateProfile or other API
+      // For now, just simulate success
+      setSaveMessage('Saved successfully');
+    } catch (err) {
+      setSaveError('Failed to save');
+    }
+  };
+
+Add the following JSX block inside the return statement, below the existing Logo Section div:
+
+      {/* New "Is" Section */}
+      <div className="mt-10 max-w-md">
+        <button
+          onClick={() => setShowIsText(!showIsText)}
+          className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 mr-4"
+        >
+          {showIsText ? 'Hide Is' : 'Show Is'}
+        </button>
+
+        <button
+          onClick={handleSaveIs}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+        >
+          Save
+        </button>
+
+        {showIsText && <p className="mt-4 text-gray-900 dark:text-white">is</p>}
+
+        {saveMessage && <p className="mt-4 text-green-600 dark:text-green-400">{saveMessage}</p>}
+        {saveError && <p className="mt-4 text-red-600 dark:text-red-400">{saveError}</p>}
+      </div>
+
+This patch adds the requested functionality with two buttons: one to toggle showing "is" and another to save it with feedback messages.

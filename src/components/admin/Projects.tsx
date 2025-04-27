@@ -26,13 +26,13 @@ const Projects: React.FC = () => {
       const project = projects.find(p => p.id === editingId);
       if (project) {
         setFormData({
-          id: project.id,
-          title: project.title || '',
-          description: project.description || '',
-          image: project.image || '',
+          id: project.id ?? '',
+          title: project.title ?? '',
+          description: project.description ?? '',
+          image: project.image ?? '',
           tags: project.tags ? project.tags.join(', ') : '',
-          repoUrl: project.repoUrl || '',
-          featured: project.featured || false,
+          repoUrl: project.repoUrl ?? '',
+          featured: project.featured ?? false,
         });
       }
     } else {
@@ -167,15 +167,29 @@ const Projects: React.FC = () => {
           />
         </div>
         <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-900 dark:text-white">Image URL</label>
+          <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-900 dark:text-white mt-4">Upload Image</label>
           <input
-            type="text"
-            id="image"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
+            type="file"
+            id="imageUpload"
+            accept="image/*"
+            onChange={async (e) => {
+              if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.readAsDataURL(file);
+                  reader.onload = () => resolve(reader.result as string);
+                  reader.onerror = error => reject(error);
+                });
+                try {
+                  const base64 = await toBase64(file);
+                  setFormData(prev => ({ ...prev, image: base64 }));
+                } catch (error) {
+                  alert('Failed to convert image to base64');
+                }
+              }
+            }}
             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-            placeholder="Enter image URL"
           />
         </div>
         <div>
