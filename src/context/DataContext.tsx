@@ -105,7 +105,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const backendUrl = 'https://localhost:10000/data';
+  const backendUrl = 'https://portfolio-jipo.onrender.com/data';
 
   useEffect(() => {
     fetchInitialData();

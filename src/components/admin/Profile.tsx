@@ -83,7 +83,7 @@ const Profile: React.FC = () => {
     try {
       const formDataUpload = new FormData();
       formDataUpload.append('resume', file);
-      const backendBaseUrl = 'https://localhost:10000';
+      const backendBaseUrl = 'http://localhost:10000';
       const response = await fetch(`${backendBaseUrl}/upload-resume`, {
         method: 'POST',
         body: formDataUpload,
@@ -112,7 +112,7 @@ const Profile: React.FC = () => {
     try {
       const formDataUpload = new FormData();
       formDataUpload.append('profileImage', file);
-      const backendBaseUrl = 'https://localhost:10000';
+      const backendBaseUrl = 'https://portfolio-jipo.onrender.com';
       const response = await fetch(`${backendBaseUrl}/upload-profile-image`, {
         method: 'POST',
         body: formDataUpload,
