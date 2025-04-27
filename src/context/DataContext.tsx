@@ -104,7 +104,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const backendUrl = 'https://portfolio-flax-two-58.vercel.app/data';
+  const backendUrl = 'https://localhost:4000/data';
 
   useEffect(() => {
     fetchInitialData();
