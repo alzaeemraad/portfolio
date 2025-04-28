@@ -220,6 +220,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       skills,
       messages,
     });
+    await fetchInitialData();
   };
 
   const createProject = async (data: Omit<Project, 'id'>) => {
@@ -233,6 +234,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       skills,
       messages,
     });
+    await fetchInitialData();
   };
 
   const deleteProject = async (id: string) => {
@@ -245,6 +247,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       skills,
       messages,
     });
+    await fetchInitialData();
   };
 
   const updateExperience = async (id: string, data: Partial<Experience>) => {
