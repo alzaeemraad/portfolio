@@ -68,9 +68,9 @@ app.get('/data', (_req, res) => {
     catch { res.status(500).json({ error: 'Malformed JSON' }); }
   });
 });
-app.post('/data', (req, res) => {
-  fs.readFile(dataFilePath, 'utf8', (e, raw) => {
-    if (e) return res.status(500).json({ error: 'Read failure' });
+app.post('/data', async (req, res) => {
+  try {
+    const raw = await fs.promises.readFile(dataFilePath, 'utf8');
     let base = {};
     try { base = JSON.parse(raw); } catch {}
     // Preserve users array from base
@@ -82,11 +82,11 @@ app.post('/data', (req, res) => {
       users,
       projects: req.body.projects !== undefined ? req.body.projects : base.projects,
     };
-    fs.writeFile(dataFilePath, JSON.stringify(merged, null, 2), 'utf8', w => {
-      if (w) return res.status(500).json({ error: 'Write failure' });
-      res.json({ message: 'Data updated successfully' });
-    });
-  });
+    await fs.promises.writeFile(dataFilePath, JSON.stringify(merged, null, 2), 'utf8');
+    res.json({ message: 'Data updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update data' });
+  }
 });
 
 // Users endpoints
