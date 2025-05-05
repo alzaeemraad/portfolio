@@ -89,6 +89,12 @@ const Profile: React.FC = () => {
       setError('Please upload a PDF file');
       return;
     }
+    // Limit file size to 2MB
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError('PDF size exceeds 2MB. Please choose a smaller file.');
+      return;
+    }
     setError(null);
     setUploading(true);
     try {
@@ -116,16 +122,55 @@ const Profile: React.FC = () => {
       setError('Please upload an image file');
       return;
     }
+    // Limit file size to 1MB
+    const maxSize = 1 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError('Image size exceeds 1MB. Please choose a smaller image.');
+      return;
+    }
     setError(null);
     setUploading(true);
     try {
-      const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
-      });
-      const base64 = await toBase64(file);
+      // Resize and compress image using canvas
+      const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => {
+            if (typeof reader.result !== 'string') {
+              reject('Invalid image data');
+              return;
+            }
+            img.src = reader.result;
+          };
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              reject('Canvas context not available');
+              return;
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // Compress to 70% quality JPEG
+            resolve(dataUrl);
+          };
+          img.onerror = (error) => reject(error);
+        });
+      };
+      const base64 = await resizeImage(file, 800, 800);
       setFormData(prev => ({ ...prev, profileimage: base64 }));
       await updateProfile({ ...formData, profileimage: base64 });
       setSuccess('Profile image uploaded successfully');
