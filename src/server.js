@@ -44,8 +44,13 @@ const settingSchema = new mongoose.Schema({
 });
 const Setting = mongoose.model('Setting', settingSchema);
 
+import fs from 'fs';
+
 // Ensure uploads folder exists and serve it
 const uploadFolder = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadFolder)) {
+  fs.mkdirSync(uploadFolder, { recursive: true });
+}
 app.use('/uploads', express.static(uploadFolder));
 
 // Multer storage setups
