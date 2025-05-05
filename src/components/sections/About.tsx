@@ -20,7 +20,7 @@ const About: React.FC = () => {
             About Me
           </h2>
           <div className="w-16 h-1 bg-primary-500 mx-auto mb-6"></div>
-          <p className="max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">
+          <p className="max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400 text-justify">
             {profile?.aboutMeText || "I'm a passionate developer with a keen eye for design and a love for creating exceptional user experiences."}
           </p>
         </motion.div>
@@ -38,19 +38,19 @@ const About: React.FC = () => {
             </h3>
             {profile?.whoAmIText ? (
               profile.whoAmIText.split('\n').map((line, idx) => (
-                <p key={idx} className="text-gray-600 dark:text-gray-300 mb-4">
+                <p key={idx} className="text-gray-600 dark:text-gray-300 mb-4 text-justify">
                   {line}
                 </p>
               ))
             ) : (
               <>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-600 dark:text-gray-300 mb-4 text-justify">
                   I'm a frontend developer with 5 years of experience building modern web applications. I specialize in React and related technologies, with a strong focus on creating responsive, accessible, and performant user interfaces.
                 </p>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-gray-600 dark:text-gray-300 mb-4 text-justify">
                   My background in design allows me to bridge the gap between aesthetics and functionality, resulting in beautiful products that users love to use.
                 </p>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600 dark:text-gray-300 text-justify">
                   When I'm not coding, you'll find me exploring new design trends, contributing to open-source projects, or enjoying outdoor activities.
                 </p>
               </>

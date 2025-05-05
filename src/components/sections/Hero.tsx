@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
               <h2 className="text-xl sm:text-2xl md:text-3xl text-gray-700 dark:text-gray-300 mb-6">
                 {profile?.title || 'Frontend Developer & UI/UX Designer'}
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto md:mx-0">
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto md:mx-0 text-justify">
                 {profile?.bio || 'I craft beautiful, user-friendly interfaces and turn complex problems into elegant solutions.'}
               </p>
             </motion.div>
