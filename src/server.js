@@ -51,7 +51,10 @@ app.use('/uploads', express.static(uploadFolder));
 // Multer storage setups
 const resumeStorage = multer.diskStorage({
   destination: uploadFolder,
-  filename: (_req, _file, cb) => cb(null, 'resume.pdf'),
+  filename: (_req, file, cb) => {
+    const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, `resume-${suffix}${path.extname(file.originalname)}`);
+  },
 });
 const profileImageStorage = multer.diskStorage({
   destination: uploadFolder,
@@ -147,13 +150,39 @@ app.post('/update-credentials', (req, res) => {
 });
 
 // File‐upload endpoints (unchanged)
-app.post('/upload-resume', uploadResume.single('resume'), (req, res) => {
+app.post('/upload-resume', uploadResume.single('resume'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.json({ url: `/uploads/${req.file.filename}` });
+  const fileUrl = `/uploads/${req.file.filename}`;
+  try {
+    const profileSetting = await Setting.findOne({ key: 'profile' });
+    let profileData = profileSetting ? profileSetting.value : {};
+    profileData.resumePdf = fileUrl;
+    await Setting.findOneAndUpdate(
+      { key: 'profile' },
+      { value: profileData },
+      { upsert: true, new: true }
+    );
+    res.json({ url: fileUrl });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update resume URL in database' });
+  }
 });
-app.post('/upload-profile-image', uploadProfileImage.single('profileImage'), (req, res) => {
+app.post('/upload-profile-image', uploadProfileImage.single('profileImage'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.json({ url: `/uploads/${req.file.filename}` });
+  const fileUrl = `/uploads/${req.file.filename}`;
+  try {
+    const profileSetting = await Setting.findOne({ key: 'profile' });
+    let profileData = profileSetting ? profileSetting.value : {};
+    profileData.profileimage = fileUrl;
+    await Setting.findOneAndUpdate(
+      { key: 'profile' },
+      { value: profileData },
+      { upsert: true, new: true }
+    );
+    res.json({ url: fileUrl });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update profile image URL in database' });
+  }
 });
 app.post('/upload-project-image', uploadProjectImage.single('projectImage'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
