@@ -104,6 +104,8 @@ const Profile: React.FC = () => {
       const data = await response.json();
       const fullUrl = data.url.startsWith('http') ? data.url : backendBaseUrl + data.url;
       setFormData(prev => ({ ...prev, resumePdf: fullUrl }));
+      // Update profile with new resume URL
+      await updateProfile({ ...formData, resumePdf: fullUrl });
       setSuccess('Resume uploaded successfully');
     } catch (err) {
       setError('Failed to upload resume');
@@ -134,6 +136,8 @@ const Profile: React.FC = () => {
       const data = await response.json();
       const fullUrl = data.url.startsWith('http') ? data.url : backendBaseUrl + data.url;
       setFormData(prev => ({ ...prev, profileimage: fullUrl }));
+      // Update profile with new profile image URL
+      await updateProfile({ ...formData, profileimage: fullUrl });
       setSuccess('Profile image uploaded successfully');
     } catch (err) {
       setError('Failed to upload profile image');
