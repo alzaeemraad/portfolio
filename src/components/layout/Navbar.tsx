@@ -68,11 +68,11 @@ const Navbar: React.FC = () => {
               whileTap={{ scale: 0.95 }}
             >
               {profile?.image ? (
-                <img
-                  src={profile.image}
-                  alt="Logo"
-                  className="h-8 w-auto object-contain"
-                />
+              <img
+                src={profile.image}
+                alt="Logo"
+                className="h-16 w-auto object-contain"
+              />
               ) : (
                 'JD'
               )}

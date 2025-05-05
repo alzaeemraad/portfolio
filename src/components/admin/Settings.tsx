@@ -76,8 +76,15 @@ const Settings: React.FC = () => {
           reject(new Error('Canvas context error'));
           return;
         }
+        ctx.clearRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.5); // quality 0.5
+
+        // Preserve transparency for PNG and GIF
+        const isPngOrGif = file.type === 'image/png' || file.type === 'image/gif';
+        const dataUrl = isPngOrGif
+          ? canvas.toDataURL('image/png')
+          : canvas.toDataURL('image/jpeg', 0.5); // quality 0.5 for JPEG
+
         resolve(dataUrl);
       };
 

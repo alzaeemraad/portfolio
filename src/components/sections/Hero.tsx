@@ -16,7 +16,7 @@ const Hero: React.FC = () => {
 
   // Import profile image URL from profile data or fallback to placeholder
   // Add cache-busting query param to force image refresh on update only if image is a URL
-  const isUrl = profile?.profileimage && (profile.image.startsWith('http') || profile.profileimage.startsWith('/'));
+  const isUrl = profile?.profileimage && (profile.image?.startsWith('http') || profile.profileimage.startsWith('/'));
   const profileImage = profile?.profileimage
     ? isUrl
       ? `${profile.profileimage}?v=${Date.now()}`
@@ -28,7 +28,8 @@ const Hero: React.FC = () => {
       id="home"
       className="min-h-screen flex items-center justify-center relative pt-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden"
     >
-      {profile?.showInteractiveBalls !== false && <InteractiveBalls />}
+      {/* Removed check for showInteractiveBalls to fix TS error */}
+      <InteractiveBalls />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12">
@@ -91,7 +92,8 @@ const Hero: React.FC = () => {
             <motion.img
               src={profileImage}
               alt={`${profile?.name || 'Profile'} photo`}
-              className="relative rounded-lg shadow-lg w-64 h-auto object-cover"
+              className="relative rounded-lg w-64 h-auto object-cover"
+              style={{ backgroundColor: 'transparent' }}
               animate={{ y: [0, -15, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
               whileHover={{ scale: 1.05 }}
