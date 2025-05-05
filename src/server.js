@@ -122,8 +122,6 @@ app.post('/users', (_req, res) => {
   res.status(501).json({ error: 'Users endpoint not implemented in this version' });
 });
 
-// Load users data
-import fs from 'fs';
 const usersDataPath = path.join(__dirname, '../backend/data/users.json');
 let users = [];
 try {
