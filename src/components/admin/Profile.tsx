@@ -6,7 +6,7 @@ import SocialMediaLinkInput from './SocialMediaLinkInput';
 
 const Profile: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
-  const { profile, skills, loading: dataLoading, updateProfile, updateSkills } = useData();
+  const { profile, loading: dataLoading, updateProfile } = useData();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -23,8 +23,6 @@ const Profile: React.FC = () => {
     profileimage: '', // Added profile image field
   });
 
-  const [skillsData, setSkillsData] = useState(skills);
-
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -32,26 +30,39 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     if (profile) {
-      setFormData({
-        name: profile.name || '',
-        title: profile.title || '',
-        email: profile.email || '',
-        bio: profile.bio || '',
-        aboutMeText: profile.aboutMeText || '',
-        whoAmIText: profile.whoAmIText || '',
-        githubLink: profile.githubLink || '',
-        linkedinLink: profile.linkedinLink || '',
-        instagramLink: profile.instagramLink || '',
-        twitterLink: profile.twitterLink || '',
-        resumePdf: profile.resumePdf || '',
-        profileimage: profile.profileimage || '',
-      });
+      // Only update formData if profile data is different from current formData to avoid overwriting unsaved changes
+      const isDifferent =
+        profile.name !== formData.name ||
+        profile.title !== formData.title ||
+        profile.email !== formData.email ||
+        profile.bio !== formData.bio ||
+        profile.aboutMeText !== formData.aboutMeText ||
+        profile.whoAmIText !== formData.whoAmIText ||
+        profile.githubLink !== formData.githubLink ||
+        profile.linkedinLink !== formData.linkedinLink ||
+        profile.instagramLink !== formData.instagramLink ||
+        profile.twitterLink !== formData.twitterLink ||
+        profile.resumePdf !== formData.resumePdf ||
+        profile.profileimage !== formData.profileimage;
+
+      if (isDifferent) {
+        setFormData({
+          name: profile.name || '',
+          title: profile.title || '',
+          email: profile.email || '',
+          bio: profile.bio || '',
+          aboutMeText: profile.aboutMeText || '',
+          whoAmIText: profile.whoAmIText || '',
+          githubLink: profile.githubLink || '',
+          linkedinLink: profile.linkedinLink || '',
+          instagramLink: profile.instagramLink || '',
+          twitterLink: profile.twitterLink || '',
+          resumePdf: profile.resumePdf || '',
+          profileimage: profile.profileimage || '',
+        });
+      }
     }
   }, [profile]);
-
-  useEffect(() => {
-    setSkillsData(skills);
-  }, [skills]);
 
   const validate = () => {
     if (!formData.name.trim()) {
@@ -112,7 +123,7 @@ const Profile: React.FC = () => {
     try {
       const formDataUpload = new FormData();
       formDataUpload.append('profileImage', file);
-      const backendBaseUrl = 'https://portfolio-jipo.onrender.com';
+      const backendBaseUrl = 'http://localhost:10000';
       const response = await fetch(`${backendBaseUrl}/upload-profile-image`, {
         method: 'POST',
         body: formDataUpload,
@@ -138,13 +149,13 @@ const Profile: React.FC = () => {
     setSuccess(null);
 
     try {
+      console.log('Submitting profile data:', formData);
       const { aboutMeText, whoAmIText, ...restProfileData } = formData;
       const profileData = { ...restProfileData, aboutMeText, whoAmIText };
       await updateProfile(profileData);
-      await updateSkills(skillsData);
-      setSuccess('Profile and skills updated successfully');
+      setSuccess('Profile updated successfully');
     } catch (_) {
-      setError('Failed to update profile and skills');
+      setError('Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -266,11 +277,11 @@ const Profile: React.FC = () => {
           Icon={Twitter}
         />
         <div>
-          <label htmlFor="profileImage" className="block text-sm font-medium text-gray-900 dark:text-white">Upload Profile Image</label>
+          <label htmlFor="profileimage" className="block text-sm font-medium text-gray-900 dark:text-white">Upload Profile Image</label>
           <input
             type="file"
-            id="profileImage"
-            name="profileImage"
+            id="profileimage"
+            name="profileimage"
             accept="image/*"
             onChange={handleProfileImageChange}
             disabled={uploading}
@@ -310,5 +321,5 @@ const Profile: React.FC = () => {
     </div>
   );
 };
-
 export default Profile;
+

@@ -11,13 +11,15 @@
     "preview": "vite preview",
     "start-backend": "node backend/server.js"
   },
-   "main": "server.js",
+  "main": "server.js",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "framer-motion": "^11.0.5",
     "lucide-react": "^0.344.0",
+    "mongoose": "^8.14.0",
     "multer": "^1.4.5-lts.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

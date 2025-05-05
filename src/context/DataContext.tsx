@@ -105,7 +105,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const backendUrl = 'https://portfolio-jipo.onrender.com/data';
+  const backendUrl = 'http://localhost:10000/data';
 
   useEffect(() => {
     fetchInitialData();
@@ -204,8 +204,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       skills,
       messages,
     });
-    // Refresh data from backend to ensure state consistency
-    await fetchInitialData();
+    // Removed fetchInitialData call to avoid overwriting state prematurely
+    // await fetchInitialData();
+  };
+
+  const updateProfileAndSkills = async (profileData: Partial<Profile>) => {
+    const updatedProfile = profile ? { ...profile, ...profileData } : null;
+    setProfile(updatedProfile);
+    await saveData({
+      profile: updatedProfile,
+      projects,
+      experience,
+      skills,
+      messages,
+    });
   };
 
   const updateProject = async (id: string, data: Partial<Project>) => {
