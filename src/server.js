@@ -1,5 +1,5 @@
 import express from 'express';
-
+import fs from 'fs';
 import 'dotenv/config';
 import cors from 'cors';
 import multer from 'multer';
@@ -43,8 +43,6 @@ const settingSchema = new mongoose.Schema({
   value: { type: mongoose.Schema.Types.Mixed }
 });
 const Setting = mongoose.model('Setting', settingSchema);
-
-import fs from 'fs';
 
 // Ensure uploads folder exists and serve it
 const uploadFolder = path.join(__dirname, 'uploads');
