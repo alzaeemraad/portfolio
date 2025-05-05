@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
+import { useData } from './context/DataContext';
+import LoadingScreen from './components/ui/LoadingScreen';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 
@@ -44,6 +46,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 import { useTheme } from './context/ThemeContext';
 
 const Portfolio: React.FC = () => {
+  const { loading } = useData();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -56,6 +59,10 @@ const Portfolio: React.FC = () => {
   useEffect(() => {
     document.title = 'John Doe | Portfolio';  // Change the title dynamically when the component is mounted
   }, []);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className={`font-sans antialiased ${colors.background} ${colors.text}`}>
