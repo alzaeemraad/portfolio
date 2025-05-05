@@ -92,20 +92,15 @@ const Profile: React.FC = () => {
     setError(null);
     setUploading(true);
     try {
-      const formDataUpload = new FormData();
-      formDataUpload.append('resume', file);
-      // const backendBaseUrl = 'http://localhost:10000';
-      const backendBaseUrl = 'https://portfolio-jipo.onrender.com';
-      const response = await fetch(`${backendBaseUrl}/upload-resume`, {
-        method: 'POST',
-        body: formDataUpload,
+      const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
       });
-      if (!response.ok) throw new Error('Upload failed');
-      const data = await response.json();
-      const fullUrl = data.url.startsWith('http') ? data.url : backendBaseUrl + data.url;
-      setFormData(prev => ({ ...prev, resumePdf: fullUrl }));
-      // Update profile with new resume URL
-      await updateProfile({ ...formData, resumePdf: fullUrl });
+      const base64 = await toBase64(file);
+      setFormData(prev => ({ ...prev, resumePdf: base64 }));
+      await updateProfile({ ...formData, resumePdf: base64 });
       setSuccess('Resume uploaded successfully');
     } catch (err) {
       setError('Failed to upload resume');
@@ -124,20 +119,15 @@ const Profile: React.FC = () => {
     setError(null);
     setUploading(true);
     try {
-      const formDataUpload = new FormData();
-      formDataUpload.append('profileImage', file);
-      // const backendBaseUrl = 'http://localhost:10000';
-      const backendBaseUrl = 'https://portfolio-jipo.onrender.com';
-      const response = await fetch(`${backendBaseUrl}/upload-profile-image`, {
-        method: 'POST',
-        body: formDataUpload,
+      const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
       });
-      if (!response.ok) throw new Error('Upload failed');
-      const data = await response.json();
-      const fullUrl = data.url.startsWith('http') ? data.url : backendBaseUrl + data.url;
-      setFormData(prev => ({ ...prev, profileimage: fullUrl }));
-      // Update profile with new profile image URL
-      await updateProfile({ ...formData, profileimage: fullUrl });
+      const base64 = await toBase64(file);
+      setFormData(prev => ({ ...prev, profileimage: base64 }));
+      await updateProfile({ ...formData, profileimage: base64 });
       setSuccess('Profile image uploaded successfully');
     } catch (err) {
       setError('Failed to upload profile image');

@@ -151,16 +151,17 @@ app.post('/update-credentials', (req, res) => {
 });
 
 // File‐upload endpoints (unchanged)
-app.post('/upload-resume', uploadResume.single('resume'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const fileUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: fileUrl });
-});
-app.post('/upload-profile-image', uploadProfileImage.single('profileImage'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const fileUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: fileUrl });
-});
+/* Removed upload-resume and upload-profile-image endpoints as files will be uploaded as base64 strings from frontend */
+// app.post('/upload-resume', uploadResume.single('resume'), (req, res) => {
+//   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+//   const fileUrl = `/uploads/${req.file.filename}`;
+//   res.json({ url: fileUrl });
+// });
+// app.post('/upload-profile-image', uploadProfileImage.single('profileImage'), (req, res) => {
+//   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+//   const fileUrl = `/uploads/${req.file.filename}`;
+//   res.json({ url: fileUrl });
+// });
 app.post('/upload-project-image', uploadProjectImage.single('projectImage'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   res.json({ url: `/uploads/${req.file.filename}` });
