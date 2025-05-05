@@ -45,7 +45,7 @@ const settingSchema = new mongoose.Schema({
 const Setting = mongoose.model('Setting', settingSchema);
 
 // Ensure uploads folder exists and serve it
-const uploadFolder = path.join(__dirname, 'uploads');
+const uploadFolder = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadFolder)) {
   fs.mkdirSync(uploadFolder, { recursive: true });
 }
