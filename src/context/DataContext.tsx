@@ -218,11 +218,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           );
           setProjects(updatedProjects);
           await saveData({
-            profile,
             projects: updatedProjects,
-            experience,
-            skills,
-            messages,
           });
           await fetchInitialData();
         },
@@ -231,11 +227,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const updatedProjects = [...projects, newProject];
           setProjects(updatedProjects);
           await saveData({
-            profile,
             projects: updatedProjects,
-            experience,
-            skills,
-            messages,
           });
           await fetchInitialData();
         },
@@ -243,11 +235,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const updatedProjects = projects.filter((project) => project.id !== id);
           setProjects(updatedProjects);
           await saveData({
-            profile,
             projects: updatedProjects,
-            experience,
-            skills,
-            messages,
           });
           await fetchInitialData();
         },
@@ -257,11 +245,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           );
           setExperience(updatedExperience);
           await saveData({
-            profile,
-            projects,
             experience: updatedExperience,
-            skills,
-            messages,
           });
         },
         createExperience: async (data: Omit<Experience, 'id'>) => {
@@ -269,22 +253,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const updatedExperience = [...experience, newExperience];
           setExperience(updatedExperience);
           await saveData({
-            profile,
-            projects,
             experience: updatedExperience,
-            skills,
-            messages,
           });
         },
         deleteExperience: async (id: string) => {
           const updatedExperience = experience.filter((exp) => exp.id !== id);
           setExperience(updatedExperience);
           await saveData({
-            profile,
-            projects,
             experience: updatedExperience,
-            skills,
-            messages,
           });
         },
         updateSkills: async (newSkills: Skill[]) => {
@@ -294,11 +270,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }));
           setSkills(skillsWithIcons);
           await saveData({
-            profile,
-            projects,
-            experience,
             skills: skillsWithIcons,
-            messages,
           });
         },
         addMessage: async (messageData: Omit<Message, 'id' | 'date'>) => {
