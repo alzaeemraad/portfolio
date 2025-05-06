@@ -16,8 +16,8 @@ const PORT = process.env.PORT || 10000;
 
 // Enable CORS and body-parsing
 app.use(cors());
-app.use(express.json({ limit: '1000mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1000mb' }));
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ extended: true, limit: '500mb' }));
 console.log('Registering /projects router');
 
 
@@ -110,6 +110,7 @@ app.post('/data', async (req, res) => {
     await Promise.all(updatePromises);
     res.json({ message: 'Data updated successfully' });
   } catch (error) {
+    console.error('Error in POST /data:', error.message, error.stack);
     res.status(500).json({ error: 'Failed to update data' });
   }
 });
