@@ -197,6 +197,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (data: Partial<Profile>) => {
     const updatedProfile = profile ? { ...profile, ...data } : null;
+    console.log('updateProfile called with:', updatedProfile);
     setProfile(updatedProfile);
     await saveData({
       profile: updatedProfile,
@@ -205,8 +206,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       skills,
       messages,
     });
-    // Removed fetchInitialData call to avoid overwriting state prematurely
-    // await fetchInitialData();
+    await fetchInitialData(); // Refresh profile data after save
   };
 
   const updateProfileAndSkills = async (profileData: Partial<Profile>) => {

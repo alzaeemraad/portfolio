@@ -105,8 +105,10 @@ const Profile: React.FC = () => {
         reader.onerror = error => reject(error);
       });
       const base64 = await toBase64(file);
-      setFormData(prev => ({ ...prev, resumePdf: base64 }));
-      await updateProfile({ ...formData, resumePdf: base64 });
+      console.log('handleFileChange base64 length:', base64.length, 'snippet:', base64.substring(0, 30));
+      const updatedFormData = { ...formData, resumePdf: base64 };
+      setFormData(updatedFormData);
+      await updateProfile(updatedFormData);
       setSuccess('Resume uploaded successfully');
     } catch (err) {
       setError('Failed to upload resume');
@@ -138,13 +140,17 @@ const Profile: React.FC = () => {
           const reader = new FileReader();
           reader.readAsDataURL(file);
           reader.onload = () => {
+            console.log('FileReader onload triggered');
             if (typeof reader.result !== 'string') {
               reject('Invalid image data');
               return;
             }
             img.src = reader.result;
+            console.log('Image src set to new data');
           };
           img.onload = () => {
+            console.log('Image onload triggered');
+            console.log('Original image dimensions:', img.width, img.height);
             const canvas = document.createElement('canvas');
             let width = img.width;
             let height = img.height;
@@ -156,6 +162,7 @@ const Profile: React.FC = () => {
               width = Math.round((width * maxHeight) / height);
               height = maxHeight;
             }
+            console.log('Resized image dimensions:', width, height);
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
@@ -167,12 +174,17 @@ const Profile: React.FC = () => {
             const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // Compress to 70% quality JPEG
             resolve(dataUrl);
           };
-          img.onerror = (error) => reject(error);
+          img.onerror = (error) => {
+            console.log('Image onerror triggered', error);
+            reject(error);
+          };
         });
       };
       const base64 = await resizeImage(file, 800, 800);
-      setFormData(prev => ({ ...prev, profileimage: base64 }));
-      await updateProfile({ ...formData, profileimage: base64 });
+      console.log('handleProfileImageChange base64 length:', base64.length, 'snippet:', base64.substring(0, 30));
+      const updatedFormData = { ...formData, profileimage: base64 };
+      setFormData(updatedFormData);
+      await updateProfile(updatedFormData);
       setSuccess('Profile image uploaded successfully');
     } catch (err) {
       setError('Failed to upload profile image');
