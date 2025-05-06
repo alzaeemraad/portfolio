@@ -16,8 +16,8 @@ const PORT = process.env.PORT || 10000;
 
 // Enable CORS and body-parsing
 app.use(cors());
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.json({ limit: '1000mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1000mb' }));
 console.log('Registering /projects router');
 
 
