@@ -171,7 +171,7 @@ const Profile: React.FC = () => {
               return;
             }
             ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // Compress to 70% quality JPEG
+            const dataUrl = canvas.toDataURL('image/png'); // Preserve transparency with PNG
             resolve(dataUrl);
           };
           img.onerror = (error) => {
