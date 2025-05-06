@@ -170,6 +170,7 @@ const Profile: React.FC = () => {
               reject('Canvas context not available');
               return;
             }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, width, height);
             const dataUrl = canvas.toDataURL('image/png'); // Preserve transparency with PNG
             resolve(dataUrl);
