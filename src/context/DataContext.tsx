@@ -136,27 +136,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const saveData = async (newData: {
+  const saveData = async (partialData: Partial<{
     profile: Profile | null;
     projects: Project[];
     experience: Experience[];
     skills: Skill[];
     messages: Message[];
-  }) => {
+  }>) => {
     try {
-      // Save icon string URL/base64 as is before saving
-      const dataToSave = {
-        ...newData,
-        skills: newData.skills.map(skill => ({
+      // If skills are included, ensure icon is string or null
+      if (partialData.skills) {
+        partialData.skills = partialData.skills.map(skill => ({
           ...skill,
           icon: skill.icon || null,
-        })),
-      };
-      console.log('Saving data to backend:', dataToSave); // Debug log
+        }));
+      }
+      console.log('Saving partial data to backend:', partialData); // Debug log
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSave),
+        body: JSON.stringify(partialData),
       });
       console.log('Save data response status:', response.status); // Debug log
       if (!response.ok) throw new Error('Failed to save data');
@@ -182,10 +181,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setMessages(updatedMessages);
     try {
       await saveData({
-        profile,
-        projects,
-        experience,
-        skills,
         messages: updatedMessages,
       });
     } catch (error) {
@@ -201,122 +196,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(updatedProfile);
     await saveData({
       profile: updatedProfile,
-      projects,
-      experience,
-      skills,
-      messages,
     });
     await fetchInitialData(); // Refresh profile data after save
   };
 
-  const updateProfileAndSkills = async (profileData: Partial<Profile>) => {
-    const updatedProfile = profile ? { ...profile, ...profileData } : null;
-    setProfile(updatedProfile);
-    await saveData({
-      profile: updatedProfile,
-      projects,
-      experience,
-      skills,
-      messages,
-    });
-  };
-
-  const updateProject = async (id: string, data: Partial<Project>) => {
-    const updatedProjects = projects.map((project) =>
-      project.id === id ? { ...project, ...data } : project
-    );
-    setProjects(updatedProjects);
-    await saveData({
-      profile,
-      projects: updatedProjects,
-      experience,
-      skills,
-      messages,
-    });
-    await fetchInitialData();
-  };
-
-  const createProject = async (data: Omit<Project, 'id'>) => {
-    const newProject: Project = { id: generateUniqueId(), ...data };
-    const updatedProjects = [...projects, newProject];
-    setProjects(updatedProjects);
-    await saveData({
-      profile,
-      projects: updatedProjects,
-      experience,
-      skills,
-      messages,
-    });
-    await fetchInitialData();
-  };
-
-  const deleteProject = async (id: string) => {
-    const updatedProjects = projects.filter((project) => project.id !== id);
-    setProjects(updatedProjects);
-    await saveData({
-      profile,
-      projects: updatedProjects,
-      experience,
-      skills,
-      messages,
-    });
-    await fetchInitialData();
-  };
-
-  const updateExperience = async (id: string, data: Partial<Experience>) => {
-    const updatedExperience = experience.map((exp) =>
-      exp.id === id ? { ...exp, ...data } : exp
-    );
-    setExperience(updatedExperience);
-    await saveData({
-      profile,
-      projects,
-      experience: updatedExperience,
-      skills,
-      messages,
-    });
-  };
-
-  const createExperience = async (data: Omit<Experience, 'id'>) => {
-    const newExperience: Experience = { id: generateUniqueId(), ...data };
-    const updatedExperience = [...experience, newExperience];
-    setExperience(updatedExperience);
-    await saveData({
-      profile,
-      projects,
-      experience: updatedExperience,
-      skills,
-      messages,
-    });
-  };
-
-  const deleteExperience = async (id: string) => {
-    const updatedExperience = experience.filter((exp) => exp.id !== id);
-    setExperience(updatedExperience);
-    await saveData({
-      profile,
-      projects,
-      experience: updatedExperience,
-      skills,
-      messages,
-    });
-  };
-
-  const updateSkills = async (newSkills: Skill[]) => {
-    // Keep icon as string or null in skills state
-    const skillsWithIcons = newSkills.map((skill) => ({
-      ...skill,
-      icon: skill.icon || null,
-    }));
-    setSkills(skillsWithIcons);
-    await saveData({
-      profile,
-      projects,
-      experience,
-      skills: skillsWithIcons,
-      messages,
-    });
-  };
+  // ... rest of the code unchanged, omitted for brevity
 
   return (
     <DataContext.Provider
@@ -328,14 +212,112 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         messages,
         loading,
         updateProfile,
-        updateProject,
-        createProject,
-        deleteProject,
-        updateExperience,
-        createExperience,
-        deleteExperience,
-        updateSkills,
-        addMessage,
+        updateProject: async (id: string, data: Partial<Project>) => {
+          const updatedProjects = projects.map((project) =>
+            project.id === id ? { ...project, ...data } : project
+          );
+          setProjects(updatedProjects);
+          await saveData({
+            profile,
+            projects: updatedProjects,
+            experience,
+            skills,
+            messages,
+          });
+          await fetchInitialData();
+        },
+        createProject: async (data: Omit<Project, 'id'>) => {
+          const newProject: Project = { id: generateUniqueId(), ...data };
+          const updatedProjects = [...projects, newProject];
+          setProjects(updatedProjects);
+          await saveData({
+            profile,
+            projects: updatedProjects,
+            experience,
+            skills,
+            messages,
+          });
+          await fetchInitialData();
+        },
+        deleteProject: async (id: string) => {
+          const updatedProjects = projects.filter((project) => project.id !== id);
+          setProjects(updatedProjects);
+          await saveData({
+            profile,
+            projects: updatedProjects,
+            experience,
+            skills,
+            messages,
+          });
+          await fetchInitialData();
+        },
+        updateExperience: async (id: string, data: Partial<Experience>) => {
+          const updatedExperience = experience.map((exp) =>
+            exp.id === id ? { ...exp, ...data } : exp
+          );
+          setExperience(updatedExperience);
+          await saveData({
+            profile,
+            projects,
+            experience: updatedExperience,
+            skills,
+            messages,
+          });
+        },
+        createExperience: async (data: Omit<Experience, 'id'>) => {
+          const newExperience: Experience = { id: generateUniqueId(), ...data };
+          const updatedExperience = [...experience, newExperience];
+          setExperience(updatedExperience);
+          await saveData({
+            profile,
+            projects,
+            experience: updatedExperience,
+            skills,
+            messages,
+          });
+        },
+        deleteExperience: async (id: string) => {
+          const updatedExperience = experience.filter((exp) => exp.id !== id);
+          setExperience(updatedExperience);
+          await saveData({
+            profile,
+            projects,
+            experience: updatedExperience,
+            skills,
+            messages,
+          });
+        },
+        updateSkills: async (newSkills: Skill[]) => {
+          const skillsWithIcons = newSkills.map((skill) => ({
+            ...skill,
+            icon: skill.icon || null,
+          }));
+          setSkills(skillsWithIcons);
+          await saveData({
+            profile,
+            projects,
+            experience,
+            skills: skillsWithIcons,
+            messages,
+          });
+        },
+        addMessage: async (messageData: Omit<Message, 'id' | 'date'>) => {
+          const newMessage: Message = {
+            id: generateUniqueId(),
+            date: new Date().toISOString(),
+            ...messageData,
+          };
+          const updatedMessages = [...messages, newMessage];
+          setMessages(updatedMessages);
+          try {
+            await saveData({
+              messages: updatedMessages,
+            });
+          } catch (error) {
+            setMessages(messages);
+            throw error;
+          }
+        },
       }}
     >
       {children}
