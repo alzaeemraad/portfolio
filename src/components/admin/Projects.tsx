@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 
+
 const Projects: React.FC = () => {
   const { user: _user, loading: authLoading } = useAuth();
   const { projects, loading: dataLoading, createProject, updateProject, deleteProject } = useData();
